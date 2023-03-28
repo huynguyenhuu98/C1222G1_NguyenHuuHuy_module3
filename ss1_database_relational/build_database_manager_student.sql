@@ -2,7 +2,7 @@ create database ss1_database_relational;
 
 use ss1_database_relational;
 
-create table class_room (
+create table classroom (
 id int auto_increment primary key,
 name varchar (45) not null
 );
