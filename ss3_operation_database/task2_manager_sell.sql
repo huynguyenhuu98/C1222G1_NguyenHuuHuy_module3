@@ -63,14 +63,15 @@ select order_id, order_date, order_total_price from order_sell;
 -- 2:
 select customer.customer_name from customer
 inner join order_sell on customer.customer_id = order_sell.customer_id
-group by customer.customer_name;
+group by customer.customer_id;
 select product.product_name from product
 inner join order_detail on product.product_id = order_detail.product_id
-group by product.product_name;
+group by product.product_id;
 
 -- 3:
 select customer.customer_name from customer
-where customer_id not in (1,2);
+left join order_sell on order_sell.customer_id = customer.customer_id
+where customer.customer_id not in (select order_sell.customer_id from order_sell);
 
 -- 4:
 select o.order_id, o.order_date, sum(p.product_price * od.order_quantity) as order_total_price
