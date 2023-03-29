@@ -2,7 +2,7 @@ create database casestudy_module3_furama;
 
 use casestudy_module3_furama;
 
-create table position (
+create table location (
 id_position int primary key, 
 name_position varchar (45)
 );
@@ -25,7 +25,7 @@ create table employee (
     id_level int,
     id_department int,
     foreign key (id_position)
-        references position (id_position),
+        references location (id_position),
     foreign key (id_level)
         references level_employee (id_level),
     foreign key (id_department)
@@ -132,7 +132,7 @@ insert into department(id_department,name_department)
 values (1,"Sale-Marketing"),(2,"Hành chính"),(3,"Phục vụ"),(4,"Quản lý");
 select * from department;
 
-insert into employee (id_employee,name_employee, dateofbirth, id_card, salary, numberphone, email, address, id_position, id_level, id_department)
+insert into employee (id_employee, name_employee, dateofbirth, id_card, salary, numberphone, email, address, id_position, id_level, id_department)
 values 	(1,'Nguyễn Văn An', '1970-11-07', '456231786', 10000000, '0901234121', 'annguyen@gmail.com', '295 Nguyễn Tất Thành, Đà Nẵng', 1, 3, 1),
 		(2,'Lê Văn Bình', '1997-04-09', '654231234', 7000000, '0934212314', 'binhlv@gmail.com', '22 Yên Bái, Đà Nẵng', 1, 2, 2),
 		(3,'Hồ Thị Yến', '1995-12-12', '999231723', 14000000, '0412352315', 'thiyen@gmail.com', 'K234/11 Điện Biên Phủ, Gia Lai', 1, 3, 2),
@@ -199,7 +199,7 @@ values 	(1,'2020-12-08', '2020-12-08', 0, 3, 1,3),
 		(8,'2021-06-17', '2021-06-18', 150000, 3, 4, 1),
 		(9,'2020-11-19', '2020-11-19', 0, 3, 4, 3),
 		(10,'2021-04-12', '2021-04-14', 0, 10, 3, 5),
-		(11,'2021-04-25', '2021-04-25', 0, 2, 2,	1),
+		(11,'2021-04-25', '2021-04-25', 0, 2, 2, 1),
 		(12,'2021-05-25', '2021-05-27', 0, 7, 10, 1);
 select * from contract;
 
@@ -213,3 +213,41 @@ values 	(1,5,2,4),
         (7,2,1,2),
         (8,2,12,2);
 select * from contract_detail;
+
+-- Task 2: Hiển thị thông tin của tất cả nhân viên có trong hệ thống có tên bắt đầu là một trong 
+-- các ký tự “H”, “T” hoặc “K” và có tối đa 15 kí tự.
+select * from employee where name_employee like '% h%' or name_employee like '% t%' or name_employee like '% k%' and length(name_employee) <= 15;
+
+-- Task 3: Hiển thị thông tin của tất cả khách hàng có độ tuổi từ 18 đến 50 tuổi và có địa chỉ ở “Đà Nẵng” hoặc “Quảng Trị”.
+select *,(year(curdate()) - year(dateofbirth)) from customer 
+where year(curdate()) - year(dateofbirth) < 50 and year(curdate()) - year(dateofbirth) > 18 
+and address like '% Đà Nẵng' or address like '% Quảng Trị';
+
+-- 4.	Đếm xem tương ứng với mỗi khách hàng đã từng đặt phòng bao nhiêu lần. Kết quả hiển thị được sắp xếp tăng dần theo số lần đặt phòng của 
+-- khách hàng. Chỉ đếm những khách hàng nào có Tên loại khách hàng là “Diamond”.
+select customer.id_customer, name_customer, name_customer_type, count(contract.id_customer) from customer 
+inner join customer_type 
+on customer.id_type_customer = type_customer.id_type_customer 
+and type_customer.id_type_customer = 1
+inner join contract 
+on customer.id_customer = contract.id_customer
+group by customer.id_customer
+order by count(contract.id_customer);
+
+-- 5. Hiển thị ma_khach_hang, ho_ten, ten_loai_khach, ma_hop_dong, ten_dich_vu, ngay_lam_hop_dong, ngay_ket_thuc, tong_tien 
+-- (Với tổng tiền được tính theo công thức như sau: Chi Phí Thuê + Số Lượng * Giá, với Số Lượng và Giá là từ bảng dich_vu_di_kem, 
+-- hop_dong_chi_tiet) cho tất cả các khách hàng đã từng đặt phòng. (những khách hàng nào chưa từng đặt phòng cũng phải hiển thị ra).
+select customer.id_customer, 
+name_customer, 
+type_customer.name_type_customer, 
+contract.id_contract, 
+service.name_service, 
+contract.day_begin_contract,
+contract.day_end_contract,
+service.cost_rent + (detail_contract.amount * service_with.price) as total
+from customer
+left join type_customer on customer.id_type_customer = typ_customer.id_type_customer
+left join contract on customer.id_customer = contract.id_customer and contract.id_contract is not null
+left join service on contract.id_service = service.id_service
+left join detail_contract on detail_contract.id_contract = contract.id_contract
+left join service_with on service_with.id_service_with = detail_contract.id_service_with;
