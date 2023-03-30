@@ -119,17 +119,17 @@ create table service_with (
     status varchar(45)
 );
 
-insert into position (id_position, name_position)
-values (1,"Quản Lý"), (2,"Nhân Viên");
-select * from position;
+insert into location (id_position, name_position)
+values (1,'Quản Lý'), (2,'Nhân Viên');
+select * from location;
 
 
 insert into level_employee (id_level,name_level)
-values (1,"Trung Cấp"),(2,"Cao Đẳng"),(3,"Đại Học"),(4,"Sau Đại Học");
+values (1,'Trung Cấp'),(2,'Cao Đẳng'),(3,'Đại Học'),(4,'Sau Đại Học');
 select * from level_employee;
 
 insert into department(id_department,name_department)
-values (1,"Sale-Marketing"),(2,"Hành chính"),(3,"Phục vụ"),(4,"Quản lý");
+values (1,'Sale-Marketing'),(2,'Hành chính'),(3,'Phục vụ'),(4,'Quản lý');
 select * from department;
 
 insert into employee (id_employee, name_employee, dateofbirth, id_card, salary, numberphone, email, address, id_position, id_level, id_department)
@@ -146,7 +146,7 @@ values 	(1,'Nguyễn Văn An', '1970-11-07', '456231786', 10000000, '0901234121'
 select * from employee;
 
 insert into type_customer(id_type_customer,name_type_customer)
-values (1,"Diamond"),(2,"Platinium"),(3,"Gold"),(4,"Silver"),(5,"Member");
+values (1,'Diamond'),(2,'Platinium'),(3,'Gold'),(4,'Silver'),(5,'Member');
 select * from type_customer;    
 
 insert into customer (id_customer, name_customer, dateofbirth, gender, id_card, numberphone, email, address,id_type_customer)
@@ -220,15 +220,15 @@ select * from employee where name_employee like '% h%' or name_employee like '% 
 
 -- Task 3: Hiển thị thông tin của tất cả khách hàng có độ tuổi từ 18 đến 50 tuổi và có địa chỉ ở “Đà Nẵng” hoặc “Quảng Trị”.
 select *,(year(curdate()) - year(dateofbirth)) from customer 
-where year(curdate()) - year(dateofbirth) < 50 and year(curdate()) - year(dateofbirth) > 18 
+where (year(curdate()) - year(dateofbirth)) < 50 and (year(curdate()) - year(dateofbirth)) > 18 
 and address like '% Đà Nẵng' or address like '% Quảng Trị';
 
 -- 4.	Đếm xem tương ứng với mỗi khách hàng đã từng đặt phòng bao nhiêu lần. Kết quả hiển thị được sắp xếp tăng dần theo số lần đặt phòng của 
 -- khách hàng. Chỉ đếm những khách hàng nào có Tên loại khách hàng là “Diamond”.
-select customer.id_customer, name_customer, name_customer_type, count(contract.id_customer) from customer 
-inner join customer_type 
+select customer.id_customer, name_customer, name_type_customer, count(contract.id_customer) from customer 
+inner join type_customer 
 on customer.id_type_customer = type_customer.id_type_customer 
-and type_customer.id_type_customer = 1
+and type_customer.name_type_customer = 'Diamond'
 inner join contract 
 on customer.id_customer = contract.id_customer
 group by customer.id_customer
@@ -237,17 +237,15 @@ order by count(contract.id_customer);
 -- 5. Hiển thị ma_khach_hang, ho_ten, ten_loai_khach, ma_hop_dong, ten_dich_vu, ngay_lam_hop_dong, ngay_ket_thuc, tong_tien 
 -- (Với tổng tiền được tính theo công thức như sau: Chi Phí Thuê + Số Lượng * Giá, với Số Lượng và Giá là từ bảng dich_vu_di_kem, 
 -- hop_dong_chi_tiet) cho tất cả các khách hàng đã từng đặt phòng. (những khách hàng nào chưa từng đặt phòng cũng phải hiển thị ra).
-select customer.id_customer, 
-name_customer, 
-type_customer.name_type_customer, 
-contract.id_contract, 
-service.name_service, 
-contract.day_begin_contract,
-contract.day_end_contract,
-service.cost_rent + (detail_contract.amount * service_with.price) as total
-from customer
-left join type_customer on customer.id_type_customer = typ_customer.id_type_customer
-left join contract on customer.id_customer = contract.id_customer and contract.id_contract is not null
-left join service on contract.id_service = service.id_service
-left join detail_contract on detail_contract.id_contract = contract.id_contract
-left join service_with on service_with.id_service_with = detail_contract.id_service_with;
+select customer.id_customer, name_customer, type_customer.name_type_customer, contract.id_contract, service.name_service, 
+contract.day_begin_contract, contract.day_end_contract, service.cost_rent + ifnull((contract_detail.amount * service_with.price),0) as total
+from type_customer
+join customer on customer.id_type_customer = type_customer.id_type_customer
+join contract on customer.id_customer = contract.id_customer 
+join service on contract.id_service = service.id_service
+left join contract_detail on  contract_detail.id_contract = contract.id_contract
+left join service_with on service_with.id_service_with =  contract_detail.id_service_with
+group by customer.id_customer
+order by customer.id_customer
+
+;
