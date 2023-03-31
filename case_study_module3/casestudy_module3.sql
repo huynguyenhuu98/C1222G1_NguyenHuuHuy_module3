@@ -5,7 +5,7 @@ use casestudy_module3_furama;
 create table location (
 id_position int primary key, 
 name_position varchar (45)
-);
+); 
 
 create table level_employee (
 id_level int primary key, 
@@ -246,6 +246,58 @@ join service on contract.id_service = service.id_service
 left join contract_detail on  contract_detail.id_contract = contract.id_contract
 left join service_with on service_with.id_service_with =  contract_detail.id_service_with
 group by customer.id_customer
-order by customer.id_customer
+order by customer.id_customer;
 
-;
+-- Task 6: Hiển thị ma_dich_vu, ten_dich_vu, dien_tich, chi_phi_thue, ten_loai_dich_vu của tất cả các loại dịch vụ 
+-- chưa từng được khách hàng thực hiện đặt từ quý 1 của năm 2021 (Quý 1 là tháng 1, 2, 3).
+ select service.id_service, service.name_service, service.area, service.cost_rent, type_service.name_type_service 
+ from type_service
+ join service on service.id_type_service = type_service.id_type_service
+ join contract on contract.id_service = service.id_service
+ where type_service.name_type_service not in (select name_type_service where quarter(day_begin_contract) = 1 and year(day_begin_contract) = 2021);
+ 
+ -- Task 7: Hiển thị thông tin ma_dich_vu, ten_dich_vu, dien_tich, so_nguoi_toi_da, chi_phi_thue, ten_loai_dich_vu của tất cả 
+ -- các loại dịch vụ đã từng được khách hàng đặt phòng trong năm 2020 nhưng chưa từng được khách hàng đặt phòng trong năm 2021.
+ select service.id_service, service.name_service, service.area,service.max_people, service.cost_rent, type_service.name_type_service 
+ from type_service
+ join service on service.id_type_service = type_service.id_type_service
+ join contract on contract.id_service = service.id_service
+ where type_service.name_type_service not in (select name_type_service where year(day_begin_contract) = 2021);
+ -- Task 8: Hiển thị thông tin ho_ten khách hàng có trong hệ thống, với yêu cầu ho_ten không trùng nhau.
+ select customer.name_customer from customer
+ group by customer.name_customer;
+ 
+ -- Task 9: Thực hiện thống kê doanh thu theo tháng, nghĩa là tương ứng với mỗi tháng trong năm 2021 thì sẽ có bao nhiêu 
+ -- khách hàng thực hiện đặt phòng.
+ select sum(service.cost_rent) from service
+ join contract on contract.id_service = service.id_service
+ join customer on contract.id_customer = customer.id_customer
+ group by month(day_begin_contract);
+ -- Task 10: Hiển thị thông tin tương ứng với từng hợp đồng thì đã sử dụng bao nhiêu dịch vụ đi kèm. Kết quả hiển thị bao gồm ma_hop_dong, 
+ -- ngay_lam_hop_dong, ngay_ket_thuc, tien_dat_coc, so_luong_dich_vu_di_kem (được tính dựa trên việc sum so_luong ở dich_vu_di_kem).
+select contract.id_contract, contract.day_begin_contract, contract.day_end_contract, contract.deposit, sum(contract_detail.amount) 
+from contract
+join contract_detail on contract_detail.id_contract = contract.id_contract
+group by id_contract;
+
+-- Task 11: Hiển thị thông tin các dịch vụ đi kèm đã được sử dụng bởi những khách hàng có ten_loai_khach là “Diamond” và có 
+-- dia_chi ở “Vinh” hoặc “Quảng Ngãi”.
+select service_with.id_service_with, service_with.name_service_with from service_with 
+join contract_detail on contract_detail.id_service_with = service_with.id_service_with
+join contract on contract.id_contract = contract_detail.id_contract
+join customer on customer.id_customer = contract.id_customer
+join type_customer on type_customer.id_type_customer = customer.id_type_customer
+where type_customer.name_type_customer = 'Diamond' and (customer.address like '% Vinh' or customer.address like '% Quảng Ngãi');
+
+-- Task 12: Hiển thị thông tin ma_hop_dong, ho_ten (nhân viên), ho_ten (khách hàng), so_dien_thoai (khách hàng), ten_dich_vu, 
+-- so_luong_dich_vu_di_kem (được tính dựa trên việc sum so_luong ở dich_vu_di_kem), tien_dat_coc của tất cả các dịch vụ đã từng 
+-- được khách hàng đặt vào 3 tháng cuối năm 2020 nhưng chưa từng được khách hàng đặt vào 6 tháng đầu năm 2021.
+select contract.id_contract, employee.name_employee, customer.name_customer, customer.numberphone, service.name_service,
+sum(contract_detail.amount), contract.deposit from contract_detail
+join contract on ontract.id_contract = contract_detail.id_contract
+join employee on employee.id_employee = contract.id_employee
+join customer on customer.id_customer = contract.id_customer
+where contract.quarter(day_begin_contract) = 4 and contract.year(day_begin_contract) = 2020 and
+service.name_service not in (select service.name_service where contract.q(day_begin_contract) = '2021-06-01');
+
+
