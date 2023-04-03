@@ -216,21 +216,21 @@ select * from contract_detail;
 
 -- Task 2: Hiển thị thông tin của tất cả nhân viên có trong hệ thống có tên bắt đầu là một trong 
 -- các ký tự “H”, “T” hoặc “K” và có tối đa 15 kí tự.
-select * from employee where name_employee like '% h%' or name_employee like '% t%' or name_employee like '% k%' and length(name_employee) <= 15;
+select * from employee where (name_employee like '%h%' or name_employee like '%t%' or name_employee like '%k%') and char_length(name_employee) <= 15;
 
 -- Task 3: Hiển thị thông tin của tất cả khách hàng có độ tuổi từ 18 đến 50 tuổi và có địa chỉ ở “Đà Nẵng” hoặc “Quảng Trị”.
 select *,(year(curdate()) - year(dateofbirth)) from customer 
 where (year(curdate()) - year(dateofbirth)) < 50 and (year(curdate()) - year(dateofbirth)) > 18 
-and address like '% Đà Nẵng' or address like '% Quảng Trị';
+and address like '%Đà Nẵng' or address like '%Quảng Trị';
 
 -- 4.	Đếm xem tương ứng với mỗi khách hàng đã từng đặt phòng bao nhiêu lần. Kết quả hiển thị được sắp xếp tăng dần theo số lần đặt phòng của 
 -- khách hàng. Chỉ đếm những khách hàng nào có Tên loại khách hàng là “Diamond”.
 select customer.id_customer, name_customer, name_type_customer, count(contract.id_customer) from customer 
 inner join type_customer 
 on customer.id_type_customer = type_customer.id_type_customer 
-and type_customer.name_type_customer = 'Diamond'
 inner join contract 
 on customer.id_customer = contract.id_customer
+where type_customer.name_type_customer = 'Diamond'
 group by customer.id_customer
 order by count(contract.id_customer);
 
@@ -244,8 +244,8 @@ join customer on customer.id_type_customer = type_customer.id_type_customer
 join contract on customer.id_customer = contract.id_customer 
 join service on contract.id_service = service.id_service
 left join contract_detail on  contract_detail.id_contract = contract.id_contract
-left join service_with on service_with.id_service_with =  contract_detail.id_service_with
-group by customer.id_customer
+left join service_with on service_with.id_service_with = contract_detail.id_service_with
+group by contract.id_contract
 order by customer.id_customer;
 
 -- Task 6: Hiển thị ma_dich_vu, ten_dich_vu, dien_tich, chi_phi_thue, ten_loai_dich_vu của tất cả các loại dịch vụ 
@@ -254,7 +254,8 @@ order by customer.id_customer;
  from type_service
  join service on service.id_type_service = type_service.id_type_service
  join contract on contract.id_service = service.id_service
- where type_service.name_type_service not in (select name_type_service where quarter(day_begin_contract) = 1 and year(day_begin_contract) = 2021);
+ where type_service.name_type_service not in (select name_type_service where quarter(day_begin_contract) = 1 and year(day_begin_contract) = 2021)
+ group by id_service;
  
  -- Task 7: Hiển thị thông tin ma_dich_vu, ten_dich_vu, dien_tich, so_nguoi_toi_da, chi_phi_thue, ten_loai_dich_vu của tất cả 
  -- các loại dịch vụ đã từng được khách hàng đặt phòng trong năm 2020 nhưng chưa từng được khách hàng đặt phòng trong năm 2021.
@@ -262,22 +263,29 @@ order by customer.id_customer;
  from type_service
  join service on service.id_type_service = type_service.id_type_service
  join contract on contract.id_service = service.id_service
- where type_service.name_type_service not in (select name_type_service where year(day_begin_contract) = 2021);
+ where year(day_begin_contract) = 2020 and type_service.name_type_service not in (select name_type_service where year(day_begin_contract) = 2021)
+ group by id_service;
  -- Task 8: Hiển thị thông tin ho_ten khách hàng có trong hệ thống, với yêu cầu ho_ten không trùng nhau.
  select customer.name_customer from customer
  group by customer.name_customer;
  
- -- Task 9: Thực hiện thống kê doanh thu theo tháng, nghĩa là tương ứng với mỗi tháng trong năm 2021 thì sẽ có bao nhiêu 
- -- khách hàng thực hiện đặt phòng.
- select sum(service.cost_rent) from service
- join contract on contract.id_service = service.id_service
- join customer on contract.id_customer = customer.id_customer
- group by month(day_begin_contract);
+ select customer.name_customer from customer
+ union
+ select customer.name_customer from customer;
+ 
+ select distinct customer.name_customer from customer;
+ 
+ -- Task 9: Thực hiện thống kê doanh thu theo tháng, nghĩa là tương ứng với mỗi tháng trong năm 2021 thì sẽ có bao nhiêu khách hàng thực hiện đặt phòng. 
+ select month(day_begin_contract), count(contract.id_contract) from contract
+ where year(day_begin_contract) = 2021
+ group by month(day_begin_contract)
+ order by month(day_begin_contract);
+ 
  -- Task 10: Hiển thị thông tin tương ứng với từng hợp đồng thì đã sử dụng bao nhiêu dịch vụ đi kèm. Kết quả hiển thị bao gồm ma_hop_dong, 
  -- ngay_lam_hop_dong, ngay_ket_thuc, tien_dat_coc, so_luong_dich_vu_di_kem (được tính dựa trên việc sum so_luong ở dich_vu_di_kem).
-select contract.id_contract, contract.day_begin_contract, contract.day_end_contract, contract.deposit, sum(contract_detail.amount) 
+select contract.id_contract, contract.day_begin_contract, contract.day_end_contract, contract.deposit, ifnull(sum(contract_detail.amount),0) as amount_service 
 from contract
-join contract_detail on contract_detail.id_contract = contract.id_contract
+left join contract_detail on contract_detail.id_contract = contract.id_contract
 group by id_contract;
 
 -- Task 11: Hiển thị thông tin các dịch vụ đi kèm đã được sử dụng bởi những khách hàng có ten_loai_khach là “Diamond” và có 
@@ -294,10 +302,93 @@ where type_customer.name_type_customer = 'Diamond' and (customer.address like '%
 -- được khách hàng đặt vào 3 tháng cuối năm 2020 nhưng chưa từng được khách hàng đặt vào 6 tháng đầu năm 2021.
 select contract.id_contract, employee.name_employee, customer.name_customer, customer.numberphone, service.name_service,
 sum(contract_detail.amount), contract.deposit from contract_detail
-join contract on ontract.id_contract = contract_detail.id_contract
+join contract on contract.id_contract = contract_detail.id_contract
 join employee on employee.id_employee = contract.id_employee
 join customer on customer.id_customer = contract.id_customer
-where contract.quarter(day_begin_contract) = 4 and contract.year(day_begin_contract) = 2020 and
-service.name_service not in (select service.name_service where contract.q(day_begin_contract) = '2021-06-01');
+join service on service.id_service = contract.id_service
+where quarter(day_begin_contract) = 4 and year(day_begin_contract) = 2020 and
+service.name_service not in (select service.name_service where quarter(day_begin_contract) in (1,2) 
+and year(day_begin_contract) = 2021)
+group by contract.id_contract;
 
+-- Task 13: Hiển thị thông tin các Dịch vụ đi kèm được sử dụng nhiều nhất bởi các Khách hàng đã đặt phòng. 
+-- (Lưu ý là có thể có nhiều dịch vụ có số lần sử dụng nhiều như nhau).
+select service_with.id_service_with, service_with.name_service_with, sum(contract_detail.amount) from service_with
+join contract_detail on contract_detail.id_service_with = service_with.id_service_with
+group by name_service_with
+having sum(contract_detail.amount) = (select sum(contract_detail.amount) from contract_detail 
+group by id_service_with order by sum(contract_detail.amount) desc limit 1); 
 
+-- 14: Hiển thị thông tin tất cả các Dịch vụ đi kèm chỉ mới được sử dụng một lần duy nhất. Thông tin hiển thị bao gồm 
+-- ma_hop_dong, ten_loai_dich_vu, ten_dich_vu_di_kem, so_lan_su_dung (được tính dựa trên việc count các ma_dich_vu_di_kem).
+select contract.id_contract, type_service.name_type_service, service_with.name_service_with,
+count(service_with.id_service_with) from service_with
+join contract_detail on contract_detail.id_service_with = service_with.id_service_with
+join contract on contract.id_contract = contract_detail.id_contract
+join service on service.id_service = contract.id_service
+join type_service on type_service.id_type_service = service.id_type_service
+group by service_with.id_service_with
+having count(service_with.id_service_with) = 1
+order by id_contract;
+
+-- 15: Hiển thi thông tin của tất cả nhân viên bao gồm ma_nhan_vien, ho_ten, ten_trinh_do, 
+-- ten_bo_phan, so_dien_thoai, dia_chi mới chỉ lập được tối đa 3 hợp đồng từ năm 2020 đến 2021.
+select employee.id_employee, employee.name_employee, level_employee.name_level, department.name_department, 
+employee.numberphone, employee.address, count(contract.id_employee) as contract_2020_2021
+from employee
+join level_employee on level_employee.id_level = employee.id_level
+join department on department.id_department = employee.id_department
+join contract on contract.id_employee = employee.id_employee
+where year(day_begin_contract) in (2020,2021)
+group by id_employee
+having contract_2020_2021 <= 3;
+
+-- 16: Xóa những Nhân viên chưa từng lập được hợp đồng nào từ năm 2019 đến năm 2021.
+set sql_safe_updates = 0;
+delete from employee where employee.id_employee not in (select id_employee from contract where year(day_begin_contract) between 2019 and 2021);
+set sql_safe_updates = 1;
+select * from employee; 
+ 
+-- 17: Cập nhật thông tin những khách hàng có ten_loai_khach từ Platinum lên Diamond, 
+-- chỉ cập nhật những khách hàng đã từng đặt phòng với Tổng Tiền thanh toán trong năm 2021 là lớn hơn 10.000.000 VNĐ.
+update customer set id_type_customer = 1 where id_customer = (select id_customer from (select customer.id_customer, 
+sum(ifnull(sv.cost_rent,0) + ifnull(ctd.amount,0) * ifnull(svw.price,0)) as total from customer c	 
+    left join contract ct on ct.id_customer = c.id_customer
+    left join service sv on sv.id_service = ct.id_service
+    left join contract_detail ctd on ctd.id_contract = ct.id_contract
+    left join service_with svw on ctd.id_service_with = svw.id_service_with
+    left join type_customer tc on tc.id_type_customer = c.id_type_customer
+    where year(ct.day_begin_contract) = 2021 and tc.name_type_customer = 'Platinium'
+    group by id_customer  
+    having total > 10000000) as result
+    );
+select * from customer;
+
+-- 18: Xóa những khách hàng có hợp đồng trước năm 2021 (chú ý ràng buộc giữa các bảng).
+set sql_safe_updates = 0;
+delete from customer where id_customer in (select id_customer from contract where year(day_begin_contract) = 2020
+);
+set sql_safe_updates = 1;
+select * from customer;
+
+create view v_customer (id_customer, name_customer, )
+
+-- 19: Cập nhật giá cho các dịch vụ đi kèm được sử dụng trên 10 lần trong năm 2020 lên gấp đôi.
+set sql_safe_updates = 0;
+update service_with set price = price * 2 where id_service_with in(
+select * from (select service_with.id_service_with
+		from service_with
+        join contract_detail on service_with.id_service_with = contract_detail.id_service_with
+        join contract on contract.id_contract = contract_detail.id_contract
+        where year(contract.day_begin_contract) = 2020
+        group by id_service_with
+        having sum(contract_detail.amount) > 10) as result
+);
+set sql_safe_updates = 1;
+select * from service_with;
+
+-- 20: Hiển thị thông tin của tất cả các nhân viên và khách hàng có trong hệ thống, 
+-- thông tin hiển thị bao gồm id (ma_nhan_vien, ma_khach_hang), ho_ten, email, so_dien_thoai, ngay_sinh, dia_chi.
+select customer.id_customer , customer.name_customer as name_cus_eml, customer.email, customer.numberphone, customer.dateofbirth, customer.address from customer
+union all
+select employee.id_employee, employee.name_employee, employee.email, employee.numberphone, employee.dateofbirth, employee.address from employee;
