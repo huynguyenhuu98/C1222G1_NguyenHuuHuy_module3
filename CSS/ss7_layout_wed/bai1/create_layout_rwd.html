@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo layout với RWD</title>
+</head>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    .col-1 {
+        width: 8.33%;
+    }
+
+    .col-2 {
+        width: 16.66%;
+    }
+
+    .col-3 {
+        width: 25%;
+    }
+
+    .col-4 {
+        width: 33.33%;
+    }
+
+    .col-5 {
+        width: 41.66%;
+    }
+
+    .col-6 {
+        width: 50%;
+    }
+
+    .col-7 {
+        width: 58.33%;
+    }
+
+    .col-8 {
+        width: 66.66%;
+    }
+
+    .col-9 {
+        width: 75%;
+    }
+
+    .col-10 {
+        width: 83.33%;
+    }
+
+    .col-11 {
+        width: 91.66%;
+    }
+
+    .col-12 {
+        width: 100%;
+    }
+
+    [class*="col-"] {
+        float: left;
+        padding: 15px;
+        /*border: 1px solid red;*/
+    }
+
+    .row:after {
+        display: block; /*  Giống với thẻ div  */
+        clear: both;
+        content: "";
+    }
+    .text-color {
+        color: red;
+    }
+
+    .bg-black {
+        background: #00031c;
+    }
+
+    nav ul {
+        padding: 0;
+    }
+    nav ul li {
+        display: inline;
+        margin: 5px;
+    }
+    .strong {
+        font-size: 40px;
+        font-weight: bold;
+    }
+    .strong1 {
+        font-size: 30px;
+        font-weight: bold;
+    }
+    footer {
+        padding: 5px;
+        color: white;
+        background-color: grey;
+    }
+
+</style>
+<body>
+<div class="row text-color bg-black">
+    <div class="col-5">
+        <a href="a">Logo</a>
+        <a href="a">Home</a>
+        <a href="a">About</a>
+        <a href="a">Projects</a>
+        <a href="a">Contract</a>
+    </div>
+    <div class="col-7">
+
+    </div>
+</div>
+<div class="row ">
+    <div class="col-2">
+        <p>Link</p>
+        <p>Link</p>
+        <p>Link</p>
+    </div>
+    <div class="col-8">
+        <p class="strong">Welcome</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab accusamus adipisci aliquam atque consectetur consequatur corporis doloremque esse, et explicabo hic ipsum itaque iure laudantium molestiae necessitatibus numquam omnis, quasi sunt suscipit? Autem debitis delectus, est harum hic inventore iure, laudantium modi nemo nisi non odio quam, quod rem reprehenderit sunt tenetur! A cumque eaque quasi. Deleniti dignissimos ducimus impedit sed. Amet atque autem, cupiditate debitis ducimus est excepturi iste laborum neque omnis reiciendis reprehenderit repudiandae soluta ullam veniam. A ad animi aperiam at atque, consequatur, dolore ipsam iste itaque laboriosam, laborum neque nihil nisi nobis non odit quidem vero.</p>
+        <p class="strong1">Test</p>
+        <p>Lorem ipsum...</p>
+    </div>
+    <div class="col-2">
+        <div class="row">
+            <button>ADS</button>
+        </div>
+        <div style="margin: 20px" ></div>
+        <div class="row">
+            <button>ADS</button>
+        </div>
+    </div>
+</div>
+<footer>
+    <p style="text-align: center">Footer text</p>
+</footer>
+</body>
+</html>
