@@ -1,4 +1,4 @@
-package com.example.product_discount_calculator;
+package ss9;
 
 import java.io.*;
 import javax.servlet.ServletException;
