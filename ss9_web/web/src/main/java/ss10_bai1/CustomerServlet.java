@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(name = "StudentServlet", value = "/student")
-public class StudentServlet extends HttpServlet {
+@WebServlet(name = "CustomerServlet", value = "/customer")
+public class CustomerServlet extends HttpServlet {
     private final List<Customer> customerList = new ArrayList<>();
 
     public void init() {

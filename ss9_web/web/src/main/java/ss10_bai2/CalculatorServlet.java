@@ -18,12 +18,14 @@ public class CalculatorServlet extends HttpServlet {
         firstNumber = Float.parseFloat(request.getParameter("firstNumber"));
         secondNumber = Float.parseFloat(request.getParameter("secondNumber"));
         String operator = request.getParameter("operator");
-
-        result = Calculator.calculator(firstNumber, secondNumber, operator);
-        request.setAttribute("firstNumber", firstNumber);
-        request.setAttribute("secondNumber", secondNumber);
-        request.setAttribute("result", result);
-        request.getRequestDispatcher("/ss10_bai2.jsp").forward(request, response);
+        try {
+            result = Calculator.calculator(firstNumber, secondNumber, operator);
+            request.setAttribute("firstNumber", firstNumber);
+            request.setAttribute("secondNumber", secondNumber);
+            request.setAttribute("result", result);
+            request.getRequestDispatcher("/ss10_bai2.jsp").forward(request, response);
+        } catch (Exception e) {
+            request.getRequestDispatcher("/error500.jsp").forward(request, response);        }
     }
 
     @Override
