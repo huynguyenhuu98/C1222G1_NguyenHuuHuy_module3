@@ -16,20 +16,21 @@ public class ManagerRepository implements IManagerRepository {
         List<Manager> managerList = new ArrayList<>();
         try {
             PreparedStatement preparedStatement = BaseRepository.getConnection().prepareStatement
-                    ("select id,name,email,country from manager");
+                    ("select * from user");
             ResultSet resultSet = preparedStatement.executeQuery();
             Manager manager;
-            if (resultSet.next()) {
+            while (resultSet.next()) {
                 manager = new Manager();
                 manager.setId(resultSet.getInt("id"));
                 manager.setName(resultSet.getString("name"));
                 manager.setEmail(resultSet.getString("email"));
                 manager.getCountry(resultSet.getString("country"));
-                return (List<Manager>) manager;
+                managerList.add(manager);
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return managerList;
     }
 }

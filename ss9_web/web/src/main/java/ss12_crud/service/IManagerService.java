@@ -1,5 +1,10 @@
 package ss12_crud.service;
 
-public interface IManagerService {
+import ss12_crud.model.Manager;
 
+import java.sql.SQLException;
+import java.util.List;
+
+public interface IManagerService {
+    List<Manager> display() throws SQLException;
 }
