@@ -8,5 +8,5 @@ public interface IProductRepository {
     List<Product> display();
     void save (Product product);
 
-    Product findName(String name);
+    List<Product> findName(String name);
 }

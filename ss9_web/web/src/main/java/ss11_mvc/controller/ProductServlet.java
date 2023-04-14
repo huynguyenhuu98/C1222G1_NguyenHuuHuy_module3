@@ -23,7 +23,9 @@ public class ProductServlet extends HttpServlet {
                 request.getRequestDispatcher("view/create.jsp").forward(request, response);
                 break;
             case "findName":
-                request.getRequestDispatcher("view/list.jsp").forward(request, response);
+                String name = request.getParameter("name");
+                request.setAttribute("productList",iProductService.findName(name));
+                request.getRequestDispatcher("view/view.jsp").forward(request, response);
                 break;
             default:
                 request.setAttribute("productList",iProductService.display());
@@ -48,13 +50,8 @@ public class ProductServlet extends HttpServlet {
                 iProductService.save(product);
                 request.setAttribute("product",iProductService.display());
                 request.getRequestDispatcher("/view/create.jsp").forward(request, response);
-//                response.sendRedirect("/product");
                 break;
-            case "findName":
-                String nameFind = request.getParameter("name");
-                request.setAttribute("findName",iProductService.findName(nameFind));
-                request.getRequestDispatcher("view/list.jsp").forward(request, response);
-                break;
+
         }
     }
 }

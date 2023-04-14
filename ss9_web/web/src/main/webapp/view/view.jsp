@@ -12,9 +12,18 @@
     <title>Title</title>
 </head>
 <body>
-<a class="btn btn-primary" href="/product?actionUser=create">Create</a>
-<a class="btn btn-primary" href="/product?actionUser=findName">Find</a>
-<table class="table" >
+<button type="button" class="btn btn-primary"><a class="btn btn-primary" href="/product?actionUser=create">Create</a></button>
+<button type="button" class="btn btn-danger"><a class="btn btn-primary" href="/product?actionUser=findName&name=${product.name}">Find</a></button>
+<table class="table color-rect-border text-center"style="width: 50%" border="1"  >
+<%--    <a class="btn btn-primary" href="/product?actionUser=findName"></a>--%>
+    <form action="/product">
+        <div class="btn btn-primary">
+            <label for="name">Name</label>
+            <input type="hidden" name="actionUser" value="findName">
+            <input type="text" class="form-control" name="name" id="name">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
     <thead>
     <tr>
         <th>ID</th>
@@ -24,6 +33,7 @@
         <th>Producer</th>
     </tr>
     </thead>
+
     <tbody>
     <c:forEach var="product" items="${productList}">
     <tr>
@@ -32,6 +42,8 @@
         <td>${product.getPrice()}</td>
         <td>${product.getDescribe()}</td>
         <td>${product.getProducer()}</td>
+        <td>Edit</td>
+        <td>Delete</td>
     </tr>
     </c:forEach>
     </tbody>
