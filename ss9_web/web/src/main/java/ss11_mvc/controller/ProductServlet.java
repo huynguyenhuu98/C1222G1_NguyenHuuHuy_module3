@@ -49,7 +49,7 @@ public class ProductServlet extends HttpServlet {
                 Product product = new Product(id,name,price,describe,producer);
                 iProductService.save(product);
                 request.setAttribute("product",iProductService.display());
-                request.getRequestDispatcher("/view/create.jsp").forward(request, response);
+                request.getRequestDispatcher("/view/view.jsp").forward(request, response);
                 break;
 
         }
