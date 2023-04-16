@@ -84,7 +84,7 @@ public class UserRepository implements IUserRepository {
             PreparedStatement preparedStatement = connection.prepareStatement("insert into users(id,name, email, country) values (10,'nguyenhuu', 'nguyenhuu@gmail.com',10)");
             preparedStatement.executeUpdate();
             connection.commit();
-            connection.rollback();
+//            connection.rollback();
         } catch (SQLException e) {
             e.printStackTrace();
         }
